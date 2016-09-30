@@ -87,39 +87,8 @@ NSString * const DMUnlockErrorDomain = @"com.dmpasscode.error.unlock";
 
 - (void)showPasscodeInViewController:(UIViewController *)viewController completion:(PasscodeCompletionBlock)completion {
     NSAssert([self isPasscodeSet], @"No passcode set");
-    _completion = completion;
-    NSLog(@"testing");
-    LAContext* context = [[LAContext alloc] init];
-    if ([context canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:nil]) {
-        [context evaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics localizedReason:NSLocalizedString(@"dmpasscode_touchid_reason", nil) reply:^(BOOL success, NSError* error) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (error) {
-                    switch (error.code) {
-                        case LAErrorUserCancel:
-                            _completion(NO, nil);
-                            break;
-                        case LAErrorSystemCancel:
-                            _completion(NO, nil);
-                            break;
-                        case LAErrorAuthenticationFailed:
-                            _completion(NO, error);
-                            break;
-                        case LAErrorPasscodeNotSet:
-                        case LAErrorTouchIDNotEnrolled:
-                        case LAErrorTouchIDNotAvailable:
-                        case LAErrorUserFallback:
-                            [self openPasscodeWithMode:1 viewController:viewController];
-                            break;
-                    }
-                } else {
-                    _completion(success, nil);
-                }
-            });
-        }];
-    } else {
-        // no touch id available
-        [self openPasscodeWithMode:1 viewController:viewController];
-    }
+    [self openPasscodeWithMode:1 viewController:viewController];
+
 }
 
 - (void)removePasscode {
